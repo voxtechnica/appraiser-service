@@ -1,0 +1,151 @@
+# Appraiser Service Configuration File
+# For detailed documentation and additional settings, see: http://dropwizard.io/manual/configuration.html
+
+# External base paths for the API and Web Application
+apiBaseUrl: http://localhost:8080
+webBaseUrl: http://localhost
+
+# Network Interface for IP Address to use for an auto-assigned TuidFactory Node ID
+# Extremely important: IP Addresses must be unique to ensure cluster-unique identifiers!
+# Use 'auto' for the first available non-local address. Use 'any' to also allow localhost (dangerous!)
+#networkInterface: eth0
+networkInterface: any
+
+# Security Realm configuration (for server-to-server Basic Authentication over SSL):
+realm:
+  # The name of the security realm, presented to the authenticating user:
+  # Default: VoxTechnica
+  realmName: VoxTechnica
+
+  # Amount of time (seconds) before another Passcode Request can be made to prevent DOS attacks on passcode service
+  # Default: 60 seconds (1 minute)
+  passcodeRequestInterval: 60
+
+  # Amount of time (seconds) before Passcode Expires
+  # Default: 86400 seconds (24 hours)
+  passcodeExpiration: 86400
+
+  # Amount of time (seconds) before Passwords Expire (0 seconds = never)
+  # Default: 0 seconds (never)
+  passwordExpiration: 0
+
+  # Amount of time (seconds) before OAuth2 Bearer Tokens Expire (0 seconds = never)
+  # Default: 2628000 seconds (1/12 of a year)
+  tokenExpiration: 2628000
+
+  # API Users for server-to-server or bootstrap accounts. Protect the privacy of this file in production!
+  # These tokens never expire.
+  apiUsers:
+  -
+    id: 2VSLNNTL8GT8
+    updateId: 2VSLNNTL8GT8
+    email: admin@voxtechnica.info
+    passwordHash: ccbc9938a937ab374f08427213e937f06fa01505c1d42d1e5ec8fead29eaf964
+    oauthToken: 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
+    roles:
+    - admin
+    status: ENABLED
+
+  # Guava CacheBuilderSpec for user authentication caching:
+  authenticationCachePolicy: maximumSize=10000, expireAfterAccess=10m
+
+# HttpClient Configuration:
+httpClient:
+  timeout: 15000ms
+  connectionTimeout: 1000ms
+  timeToLive: 1h
+  cookiesEnabled: false
+  maxConnections: 1024
+  maxConnectionsPerRoute: 1024
+  keepAlive: 200ms
+  retries: 2
+# Additional settings for a JerseyClient:
+#  minThreads: 1
+#  maxThreads: 128
+#  workQueueSize: 8
+#  gzipEnabled: true
+#  gzipEnabledForRequests: true
+#  chunkedEncodingEnabled: true
+
+# Cassandra Database Configuration:
+cassandra:
+  hosts: ["embedded"]
+  keyspace: appraisers
+  clusterName: LocalDev
+  dataCenterName: datacenter1
+  replicationFactor: 1
+  readRetries: 3
+  writeRetries: 3
+  createIfMissing: true
+
+# SendGrid Email Configuration
+# Adding recipient domains limits sending just to those. Use "any" in production to remove the limit.
+sendgrid:
+  username: XXXXXXXXXXXX
+  password: XXXXXXXXXXXX
+  from: admin@voxtechnica.info
+  fromName: VoxTechnica
+  recipientsBcc:
+  - admin@voxtechnica.info
+  recipientDomains:
+  - voxtechnica.info
+  - gmail.com
+  enabled: true
+
+# Slack Message Configuration
+# Valid Channels: #dev, #staging, #production, @david, etc.
+# For local development, use your own handle (e.g. @david) as the channel
+# NotifyOnError: @admin (whoever should get a specific mention on logLevel=ERROR)
+slack:
+  webhookUri: https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX
+  channel: "#dev"
+  notifyOnError:
+  - "@admin"
+  enabled: true
+
+# Event Service Configuration
+# Default timeToLive 7776000 seconds (90 days)
+event:
+  logLevel: INFO
+  timeToLive: 7776000
+
+# Freemarker Configuration
+viewRenderer:
+  .ftl:
+    strict_syntax: yes
+    whitespace_stripping: yes
+
+# Server Request (Access) Log
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+  requestLog:
+    timeZone: UTC
+    appenders:
+    - type: file
+      currentLogFilename: log/access.log
+      threshold: ALL
+      archive: true
+      archivedLogFilenamePattern: log/access.%d.log.gz
+      archivedFileCount: 14
+
+# Event Logging
+logging:
+  level: INFO
+  loggers:
+    io.dropwizard: INFO
+    org.apache.cassandra: WARN
+    org.apache.cassandra.cql3.statements.BatchStatement: WARN
+  appenders:
+  - type: file
+    currentLogFilename: log/appraiser-service.log
+    threshold: ALL
+    archive: true
+    archivedLogFilenamePattern: log/appraiser-service.%d.log.gz
+    archivedFileCount: 14
+    timeZone: UTC
+  - type: console

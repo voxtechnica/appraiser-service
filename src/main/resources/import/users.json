@@ -1,0 +1,14 @@
+[
+  {
+    "id": "2VSLNNTL8GT8",
+    "updateId": "2VSLNNTL8GT8",
+    "email": "admin@voxtechnica.info",
+    "passwordHash": "ccbc9938a937ab374f08427213e937f06fa01505c1d42d1e5ec8fead29eaf964",
+    "roles": [
+      "admin"
+    ],
+    "status": "ENABLED",
+    "name": "2VSLNNTL8GT8",
+    "domain": "voxtechnica.info"
+  }
+]

@@ -1,12 +1,21 @@
+# Build Products
 *.class
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.ear
+*.deb
+target/
+dependency-reduced-pom.xml
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Individual Developer Files
+*.iml
+.idea/
+nbactions.xml
+
+# Run Files
+.vagrant/
 hs_err_pid*
+.DS_Store
+appraisers.yaml
+log/
+cassandra/
