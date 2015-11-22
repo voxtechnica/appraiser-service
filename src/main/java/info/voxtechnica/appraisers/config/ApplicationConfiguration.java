@@ -1,12 +1,8 @@
 package info.voxtechnica.appraisers.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.ImmutableMap;
 import io.dropwizard.Configuration;
 import io.dropwizard.client.HttpClientConfiguration;
-
-import java.util.Collections;
-import java.util.Map;
 
 /**
  * Configuration settings for the Appraiser Service application
@@ -175,20 +171,4 @@ public class ApplicationConfiguration extends Configuration {
 //        this.httpClient = httpClient;
 //    }
 
-    /**
-     * Freemarker View configuration
-     */
-    private Map<String, Map<String, String>> viewRenderer = Collections.emptyMap();
-
-    public Map<String, Map<String, String>> getViewRenderer() {
-        return viewRenderer;
-    }
-
-    public void setViewRenderer(Map<String, Map<String, String>> viewRendererConfiguration) {
-        ImmutableMap.Builder<String, Map<String, String>> builder = ImmutableMap.builder();
-        for (Map.Entry<String, Map<String, String>> entry : viewRendererConfiguration.entrySet()) {
-            builder.put(entry.getKey(), ImmutableMap.copyOf(entry.getValue()));
-        }
-        this.viewRenderer = builder.build();
-    }
 }

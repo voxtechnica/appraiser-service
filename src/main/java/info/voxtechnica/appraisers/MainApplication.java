@@ -97,12 +97,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
     public void initialize(final Bootstrap<ApplicationConfiguration> bootstrap) {
         bootstrap.addCommand(new SchemaCommand());
         bootstrap.addBundle(new MultiPartBundle());
-        bootstrap.addBundle(new ViewBundle<ApplicationConfiguration>() {
-            @Override
-            public Map<String, Map<String, String>> getViewConfiguration(ApplicationConfiguration configuration) {
-                return configuration.getViewRenderer();
-            }
-        });
+        bootstrap.addBundle(new ViewBundle<>());
         bootstrap.addBundle(new AssetsBundle("/assets/swagger", "/swagger", null, "swagger"));
         bootstrap.addBundle(new AssetsBundle("/assets/", "/assets", "index.html", "assets"));
     }

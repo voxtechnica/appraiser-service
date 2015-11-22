@@ -24,6 +24,7 @@ The Federal [ASC.gov](https://www.asc.gov/Home.aspx) (Appraisal Subcommittee) we
 * [RunQuery](https://www.asc.gov/wsvc/ASCQuerySvc.asmx?op=RunQuery): Experiment with service using REST Console or equivalent.
 
 Header fields in the downloadable tab-delimited text file:
+
 1. **st_abbr**
 2. **lic_number**
 3. lname
@@ -42,7 +43,7 @@ Header fields in the downloadable tab-delimited text file:
 16. **lic_type**
 17. exp_date
 
-The combination of three fields (st_abbr, lic_number, and lic_type) create a unique index to a record in the file.
+The combination of three fields (st_abbr, lic_number, and lic_type) creates a unique index to a record in the file.
 
 # Local Development Environment Setup
 

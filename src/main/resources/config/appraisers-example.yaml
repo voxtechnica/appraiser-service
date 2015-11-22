@@ -109,12 +109,6 @@ event:
   logLevel: INFO
   timeToLive: 7776000
 
-# Freemarker Configuration
-viewRenderer:
-  .ftl:
-    strict_syntax: yes
-    whitespace_stripping: yes
-
 # Server Request (Access) Log
 server:
   applicationConnectors:
