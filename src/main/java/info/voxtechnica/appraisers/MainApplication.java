@@ -204,6 +204,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
                 .setAuthenticator(cachingTokenAuthenticator)
                 .setAuthorizer(apiUserAuthorizer)
                 .setPrefix("Bearer")
+                .setRealm(realm.getRealmName())
                 .buildAuthFilter();
         // Basic Authentication
         ApiUserBasicAuthenticator apiUserBasicAuthenticator = new ApiUserBasicAuthenticator();
@@ -215,7 +216,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
                 .setRealm(realm.getRealmName())
                 .buildAuthFilter();
         // Chained Authentication
-        List<AuthFilter> authFilters = Lists.newArrayList(tokenAuthFilter, basicAuthFilter);
+        List<AuthFilter> authFilters = Lists.newArrayList(basicAuthFilter, tokenAuthFilter);
         environment.jersey().register(new AuthDynamicFeature(new ChainedAuthFilter(authFilters)));
         environment.jersey().register(new AuthValueFactoryProvider.Binder<>(User.class));
         environment.jersey().register(RolesAllowedDynamicFeature.class);
