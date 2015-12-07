@@ -1,6 +1,6 @@
 #!/bin/bash
 # Create user if it doesn't exist
-if [ ! getent passwd appraisers >/dev/null ]; then
+if ! getent passwd appraisers >/dev/null; then
 	adduser --quiet --system --group --home /var/run/appraisers appraisers
 fi
 # Stop the service if it's already running
