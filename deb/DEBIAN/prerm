@@ -1,5 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Stop the service if it's already running
-if [ $(status appraisers 2>&1 | grep "appraisers start" | wc -l) -gt 0 ]; then
-	service appraisers stop
+if systemctl is-active appraisers.service >/dev/null; then
+    echo "Stopping the Appraiser Service"
+    systemctl stop appraisers.service
 fi

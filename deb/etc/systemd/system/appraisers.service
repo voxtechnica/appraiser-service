@@ -1,0 +1,13 @@
+[Unit]
+Description=Appraisers
+After=local-fs.target network.target
+
+[Service]
+User=appraisers
+ExecStart=/usr/bin/java -jar -Xms512m -Xmx2048m /usr/bin/appraisers.jar server /etc/appraisers.yaml
+Restart=always
+RestartSec=10
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

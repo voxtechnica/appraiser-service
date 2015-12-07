@@ -16,10 +16,10 @@ mkdir -p $PKG/usr/bin
 JAR=$(ls -1 target/appraisers-*.jar | grep -v sources | tail -n 1)
 cp $JAR $PKG/usr/bin/appraisers.jar
 
-# Upstart configuration
+# Service configuration
 cp -a deb/etc $PKG/
 
-# Environment-specific configuration
+# Application configuration
 cp appraisers.yaml $PKG/etc/appraisers.yaml
 
 # Control files

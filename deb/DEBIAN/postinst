@@ -1,10 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # Set a logging folder if it doesn't already exist
 if [ ! -d /var/log/appraisers ]; then
+    echo "Setting up logging directory"
     mkdir /var/log/appraisers
     chown appraisers:appraisers /var/log/appraisers
 fi
+# Reload service definitions
+systemctl daemon-reload
+# Enable the service if it isn't already
+if ! systemctl is-enabled appraisers.service >/dev/null; then
+    echo "Enabling the Appraiser Service"
+    systemctl enable appraisers.service
+fi
 # Start the service if it's not running
-if [ $(status appraisers 2>&1 | grep "appraisers stop" | wc -l) -gt 0 ]; then
-	service appraisers start
+if ! systemctl is-active appraisers >/dev/null; then
+    echo "Starting the Appraiser Service"
+    systemctl start appraisers.service
 fi
