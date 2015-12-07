@@ -22,9 +22,9 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 
 /**
- * A ‘user’ is a human or another computer process that invokes the API. It belongs to an organization (required; only one)
- * and is a focal point for access controls and event logging. Users may be found in either the kitchen.yaml configuration
- * file or in the database. For server-to-server interaction, the configuration file is preferred for performance reasons.
+ * A ‘user’ is a human or another computer process that invokes the API. It is a focal point for access controls
+ * and event logging. Users may be found in either the yaml configuration file or in the database. For rapid
+ * server-to-server interaction, the configuration file is preferred for in-memory performance reasons.
  */
 public class Users {
     private static final Logger LOG = LoggerFactory.getLogger(Users.class);

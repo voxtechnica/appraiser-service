@@ -92,7 +92,7 @@ public class TokenResource {
         Boolean validCredentials = false;
         User user = null;
         try {
-            // Validate credentials: either a user's password or an ad ID for their organization
+            // Validate credentials: a user's password
             if ("password".equalsIgnoreCase(request.getGrantType())) {
                 user = Users.readUser(request.getUsername());
                 validCredentials = user != null && !User.Status.DISABLED.equals(user.getStatus()) && user.checkPassword(request.getPassword());

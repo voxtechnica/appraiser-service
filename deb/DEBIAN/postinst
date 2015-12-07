@@ -1,0 +1,10 @@
+#!/bin/sh
+# Set a logging folder if it doesn't already exist
+if [ ! -d /var/log/appraisers ]; then
+    mkdir /var/log/appraisers
+    chown appraisers:appraisers /var/log/appraisers
+fi
+# Start the service if it's not running
+if [ $(status appraisers 2>&1 | grep "appraisers stop" | wc -l) -gt 0 ]; then
+	service appraisers start
+fi

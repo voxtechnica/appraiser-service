@@ -25,7 +25,7 @@ import java.util.concurrent.ExecutionException;
  * understanding system activity and for debugging when things go badly. Events are never updated; they have no versions.
  * We just record what happened. The list of associated entity IDs should be kept short, unless it’s truly meaningful
  * (e.g. if someone gets a paginated list, don’t necessarily record every item in the list; maybe just the parent call).
- * Furthermore, the set of entity IDs should not include the userId or organizationId, since they're already included.
+ * Furthermore, the set of entity IDs should not include the userId, since it's already included.
  */
 public class Events {
     private static final Logger LOG = LoggerFactory.getLogger(Events.class);

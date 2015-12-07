@@ -41,7 +41,7 @@ public class EventResource {
         try {
             // Event ID must be created internally
             if (event.getId() != null) throw new WebApplicationException(Response.Status.NOT_ACCEPTABLE);
-            // Users can associate events with other organizations, but not other users
+            // Users cannot associate events with other users
             event.setUserId(apiUser.getId());
             // No need to log the event of creating the event :)
             Event created = Events.createEvent(event);

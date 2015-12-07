@@ -1,0 +1,7 @@
+Package: voxtechnica-appraisers
+Section: main
+Priority: optional
+Architecture: amd64
+Depends: oracle-java8-installer
+Maintainer: VoxTechnica <admin@voxtechnica.info>
+Description: Appraiser Service API

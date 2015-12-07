@@ -1,0 +1,9 @@
+#!/bin/bash
+# Create user if it doesn't exist
+if [ ! getent passwd appraisers >/dev/null ]; then
+	adduser --quiet --system --group --home /var/run/appraisers appraisers
+fi
+# Stop the service if it's already running
+if [ $(status appraisers 2>&1 | grep "appraisers start" | wc -l) -gt 0 ]; then
+	service appraisers stop
+fi
