@@ -23,7 +23,7 @@ cp -a deb/etc $PKG/
 cp appraisers.yaml $PKG/etc/appraisers.yaml
 
 # Control files
-cp -a src/deb/DEBIAN $PKG/
+cp -a deb/DEBIAN $PKG/
 echo "Version: $VER" >> $PKG/DEBIAN/control
 
 # Build the Debian Package
