@@ -13,7 +13,7 @@ if ! systemctl is-enabled appraisers.service >/dev/null; then
     systemctl enable appraisers.service
 fi
 # Start the service if it's not running
-if ! systemctl is-active appraisers >/dev/null; then
+if ! systemctl is-active appraisers.service >/dev/null; then
     echo "Starting the Appraiser Service"
     systemctl start appraisers.service
 fi

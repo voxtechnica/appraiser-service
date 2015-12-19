@@ -1,6 +1,7 @@
 package info.voxtechnica.appraisers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import info.voxtechnica.appraisers.config.ApplicationConfiguration;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,6 +30,14 @@ public class Message implements Comparable<Message> {
     private Type type = Type.EMAIL;
     private Event.LogLevel logLevel;
     private Status status = Status.INITIALIZED;
+
+    public String getCreatedAt() {
+        return id == null ? null : (new Tuid(id)).getCreatedAt();
+    }
+
+    public String getUpdatedAt() {
+        return updateId == null ? null : (new Tuid(updateId)).getCreatedAt();
+    }
 
     public Message() {
     }

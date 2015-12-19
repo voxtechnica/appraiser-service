@@ -29,6 +29,7 @@ import info.voxtechnica.appraisers.model.Metric;
 import info.voxtechnica.appraisers.model.Node;
 import info.voxtechnica.appraisers.model.User;
 import info.voxtechnica.appraisers.resource.*;
+import info.voxtechnica.appraisers.task.ImportLicenseFileTask;
 import info.voxtechnica.appraisers.task.ImportUsersTask;
 import info.voxtechnica.appraisers.util.JsonSerializer;
 import info.voxtechnica.appraisers.util.NetworkUtils;
@@ -171,10 +172,12 @@ public class MainApplication extends Application<ApplicationConfiguration> {
 
         // Initialize administrative Tasks:
         environment.admin().addTask(new ImportUsersTask());
+        environment.admin().addTask(new ImportLicenseFileTask());
 
         // Initialize database access objects (DAOs):
         startTime = System.currentTimeMillis();
         Events.initialize(cassandraClient, configuration.getEvent());
+        Licenses.initialize(cassandraClient);
         Messages.initialize(cassandraClient);
         Metrics.initialize(cassandraClient);
         Tokens.initialize(cassandraClient);
@@ -186,6 +189,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
         // Register Resources
         environment.jersey().register(new EventCountResource());
         environment.jersey().register(new EventResource());
+        environment.jersey().register(new LicenseResource());
         environment.jersey().register(new MessageResource());
         environment.jersey().register(new MetricResource());
         environment.jersey().register(new MetricTagResource());

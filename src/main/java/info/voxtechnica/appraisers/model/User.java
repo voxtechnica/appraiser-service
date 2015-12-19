@@ -1,6 +1,7 @@
 package info.voxtechnica.appraisers.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 import lombok.Data;
@@ -32,6 +33,14 @@ public class User implements Principal, Comparable<User> {
     private UUID oauthToken; // OAuth 2 Bearer Token for Bootstrap Accounts
     private Set<String> roles;
     private Status status;
+
+    public String getCreatedAt() {
+        return id == null ? null : (new Tuid(id)).getCreatedAt();
+    }
+
+    public String getUpdatedAt() {
+        return updateId == null ? null : (new Tuid(updateId)).getCreatedAt();
+    }
 
     /**
      * Check the user's OAuth 2 Bearer Token against a provided token
