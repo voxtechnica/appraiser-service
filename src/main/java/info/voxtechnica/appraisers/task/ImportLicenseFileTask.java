@@ -37,10 +37,9 @@ public class ImportLicenseFileTask extends Task {
         String fileName;
         if (parameters.containsKey("file")) {
             fileName = parameters.get("file").asList().get(0);
-            printWriter.println("Importing licenses from file: " + fileName);
-            printWriter.flush();
         } else {
             printWriter.print(String.format("Example Usage: %s\nError: missing file name.\n", usage));
+            printWriter.close();
             return;
         }
 
@@ -58,9 +57,8 @@ public class ImportLicenseFileTask extends Task {
         // Read and process lines (records) from the data file
         Path dataFile = Paths.get(fileName);
         BufferedReader reader = Files.newBufferedReader(dataFile, Charset.forName("Windows-1252"));
-        long count = LicenseService.importLicenses(reader, day);
-
-        printWriter.println(String.format("Complete. Enqueued %d license records in %d ms.", count, System.currentTimeMillis() - startTime));
+        String message = LicenseService.importLicenses(reader, day);
+        printWriter.println(String.format("%s from file %s in %d ms", message, fileName, System.currentTimeMillis() - startTime));
         printWriter.close();
     }
 }

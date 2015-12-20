@@ -3,6 +3,7 @@ package info.voxtechnica.appraisers.service;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import info.voxtechnica.appraisers.db.dao.Events;
+import info.voxtechnica.appraisers.model.Tuid;
 import info.voxtechnica.appraisers.util.LicenseImporter;
 import info.voxtechnica.appraisers.util.TuidFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -34,24 +35,27 @@ public class LicenseService {
     /**
      * Import ASC appraiser licenses from an ASC license data snapshot. Licenses are imported using concurrent workers.
      *
-     * @param reader Buffered reader
-     * @param day    Optional local date used for importing historical data
+     * @param reader   Buffered reader
+     * @param date     Optional local date used for importing historical data
      * @return number of licenses imported
      */
-    public static long importLicenses(BufferedReader reader, LocalDate day) {
+    public static String importLicenses(BufferedReader reader, LocalDate date) {
+        boolean historical = (date != null);
+        String importId = TuidFactory.getId();
+        Integer day = date == null ? (new Tuid(importId)).getYearMonthDay() : (date.getYear() * 10000) + (date.getMonthValue() * 100) + date.getDayOfMonth();
+        Long millis = date == null ? null : date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         long count = 0;
+        String[] fieldNames = {};
+        String line;
         try {
-            Long millis = day == null ? null : day.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            String[] fieldNames = {};
-            String line;
             while ((line = reader.readLine()) != null) {
                 // convert the Windows-1252 String to a UTF-8 String
                 line = new String(line.getBytes(), "UTF-8");
                 // the first line is a header line
                 if (++count == 1) fieldNames = line.trim().split("\t");
                 else {
-                    String id = millis == null ? TuidFactory.getId() : TuidFactory.getIdFromTimestamp(millis + count);
-                    importService.submit(new LicenseImporter(fieldNames, line, id));
+                    String id = historical ? TuidFactory.getIdFromTimestamp(millis + count) : TuidFactory.getId();
+                    importService.submit(new LicenseImporter(importId, day, fieldNames, line, id));
                 }
             }
         } catch (Exception e) {
@@ -63,6 +67,8 @@ public class LicenseService {
                 Events.error("LicenseService error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
             }
         }
-        return count - 1; // number of license records
+        String message = String.format("Import %s: enqueued %d licenses for day %d", importId, count - 1, day);
+        Events.info(null, importId, message);
+        return message;
     }
 }

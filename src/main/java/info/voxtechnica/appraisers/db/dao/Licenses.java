@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import info.voxtechnica.appraisers.client.CassandraClient;
+import info.voxtechnica.appraisers.model.Import;
 import info.voxtechnica.appraisers.model.License;
 import info.voxtechnica.appraisers.model.Tuid;
 import info.voxtechnica.appraisers.util.JsonSerializer;

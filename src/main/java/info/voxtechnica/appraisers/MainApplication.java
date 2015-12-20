@@ -181,6 +181,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
         // Initialize database access objects (DAOs):
         startTime = System.currentTimeMillis();
         Events.initialize(cassandraClient, configuration.getEvent());
+        Imports.initialize(cassandraClient);
         Licenses.initialize(cassandraClient);
         Messages.initialize(cassandraClient);
         Metrics.initialize(cassandraClient);
@@ -201,6 +202,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
         // Register Resources
         environment.jersey().register(new EventCountResource());
         environment.jersey().register(new EventResource());
+        environment.jersey().register(new ImportResource());
         environment.jersey().register(new LicenseResource());
         environment.jersey().register(new MessageResource());
         environment.jersey().register(new MetricResource());
