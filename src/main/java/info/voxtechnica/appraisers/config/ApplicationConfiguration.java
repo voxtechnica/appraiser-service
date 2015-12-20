@@ -135,6 +135,19 @@ public class ApplicationConfiguration extends Configuration {
     }
 
     /**
+     * Worker Thread Pool configuration
+     */
+    private ThreadPoolConfiguration threadPool = new ThreadPoolConfiguration();
+
+    public ThreadPoolConfiguration getThreadPool() {
+        return threadPool;
+    }
+
+    public void setThreadPool(ThreadPoolConfiguration threadPool) {
+        this.threadPool = threadPool;
+    }
+
+    /**
      * Event Service configuration
      */
     private EventConfiguration event = new EventConfiguration();

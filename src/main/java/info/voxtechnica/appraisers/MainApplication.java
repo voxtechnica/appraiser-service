@@ -22,6 +22,7 @@ import info.voxtechnica.appraisers.client.SlackClient;
 import info.voxtechnica.appraisers.command.SchemaCommand;
 import info.voxtechnica.appraisers.config.ApplicationConfiguration;
 import info.voxtechnica.appraisers.config.RealmConfiguration;
+import info.voxtechnica.appraisers.config.ThreadPoolConfiguration;
 import info.voxtechnica.appraisers.db.CassandraMetricSet;
 import info.voxtechnica.appraisers.db.dao.*;
 import info.voxtechnica.appraisers.health.*;
@@ -29,6 +30,7 @@ import info.voxtechnica.appraisers.model.Metric;
 import info.voxtechnica.appraisers.model.Node;
 import info.voxtechnica.appraisers.model.User;
 import info.voxtechnica.appraisers.resource.*;
+import info.voxtechnica.appraisers.service.LicenseService;
 import info.voxtechnica.appraisers.task.ImportLicenseFileTask;
 import info.voxtechnica.appraisers.task.ImportUsersTask;
 import info.voxtechnica.appraisers.util.JsonSerializer;
@@ -48,6 +50,7 @@ import io.dropwizard.client.HttpClientBuilder;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.client.JerseyClientConfiguration;
 import io.dropwizard.forms.MultiPartBundle;
+import io.dropwizard.lifecycle.setup.ExecutorServiceBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import io.dropwizard.views.ViewBundle;
@@ -77,6 +80,7 @@ import java.security.cert.CertificateException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class MainApplication extends Application<ApplicationConfiguration> {
     private static final Logger LOG = LoggerFactory.getLogger(MainApplication.class);
@@ -185,6 +189,14 @@ public class MainApplication extends Application<ApplicationConfiguration> {
         duration = System.currentTimeMillis() - startTime;
         LOG.info("Prepared database statements in {} ms", duration);
         Metrics.createMetric(new Metric("init_database", duration));
+
+        // Initialize the worker thread pool and the License Service
+        ThreadPoolConfiguration threadPoolConfiguration = configuration.getThreadPool();
+        ExecutorServiceBuilder executorServiceBuilder = environment.lifecycle().executorService("worker-pool-%d")
+                .workQueue(new ArrayBlockingQueue<>(threadPoolConfiguration.getQueueSize()))
+                .minThreads(threadPoolConfiguration.getMinThreads())
+                .maxThreads(threadPoolConfiguration.getMaxThreads());
+        LicenseService.initialize(executorServiceBuilder.build());
 
         // Register Resources
         environment.jersey().register(new EventCountResource());

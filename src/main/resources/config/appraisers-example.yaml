@@ -103,6 +103,12 @@ slack:
   - "@admin"
   enabled: true
 
+# Worker Thread Pool Configuration
+threadPool:
+  queueSize: 500000
+  minThreads: 4
+  maxThreads: 8
+
 # Event Service Configuration
 # Default timeToLive 7776000 seconds (90 days)
 event:
