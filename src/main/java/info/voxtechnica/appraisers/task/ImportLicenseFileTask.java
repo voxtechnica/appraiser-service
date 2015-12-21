@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter;
  * (format: asc.gov.2016-01-01.txt). If that's not available, then the current system time is used.
  */
 public class ImportLicenseFileTask extends Task {
-    // TODO: determine whether the EOF ^Z (\32) needs to be stripped from the text file prior to import
     private final String usage = "curl --data 'file=/path/to/data/file.txt' --data 'day=20151018' http://localhost:8081/tasks/import-license-file";
 
     public ImportLicenseFileTask() {

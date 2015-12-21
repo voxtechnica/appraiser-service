@@ -4,6 +4,7 @@ import info.voxtechnica.appraisers.db.dao.Events;
 import info.voxtechnica.appraisers.db.dao.Imports;
 import info.voxtechnica.appraisers.db.dao.Licenses;
 import info.voxtechnica.appraisers.model.License;
+import info.voxtechnica.appraisers.model.Tuid;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.util.Map;
@@ -22,7 +23,7 @@ public class LicenseImporter implements Runnable {
 
     public LicenseImporter(String importId, Integer day, String[] fieldNames, String record, String id) {
         this.importId = importId;
-        this.day = day;
+        this.day = day != null ? day : (new Tuid(importId)).getYearMonthDay();
         this.fieldNames = fieldNames;
         this.record = record;
         this.id = id;
@@ -33,7 +34,7 @@ public class LicenseImporter implements Runnable {
         try {
             // capture raw appraiser license data
             Map<String, String> rawData = new TreeMap<>();
-            String[] values = record.trim().split("\t");
+            String[] values = record.split("\t");
             for (int i = 0; i < values.length && i < fieldNames.length; i++)
                 rawData.put(fieldNames[i], values[i]);
             // create an unidentified License
@@ -57,7 +58,8 @@ public class LicenseImporter implements Runnable {
                 Imports.incrementCreated(importId, day);
             }
         } catch (Exception e) {
-            Events.error("LicenseImporter error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
+            String message = String.format("LicenseImporter error: %s\nRaw License: %s", ExceptionUtils.getRootCauseMessage(e), record);
+            Events.error(null, importId, message, ExceptionUtils.getStackTrace(e));
         }
     }
 }

@@ -50,21 +50,23 @@ public class LicenseService {
         try {
             while ((line = reader.readLine()) != null) {
                 // convert the Windows-1252 String to a UTF-8 String
-                line = new String(line.getBytes(), "UTF-8");
+                line = (new String(line.getBytes(), "UTF-8")).trim();
+                // skip empty lines (e.g. ^Z EOF character)
+                if (line.isEmpty() || !line.contains("\t")) continue;
                 // the first line is a header line
-                if (++count == 1) fieldNames = line.trim().split("\t");
+                if (++count == 1) fieldNames = line.split("\t");
                 else {
                     String id = historical ? TuidFactory.getIdFromTimestamp(millis + count) : TuidFactory.getId();
                     importService.submit(new LicenseImporter(importId, day, fieldNames, line, id));
                 }
             }
         } catch (Exception e) {
-            Events.error("LicenseService error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
+            Events.error(null, importId, "LicenseService error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
         } finally {
             try {
                 reader.close();
             } catch (IOException e) {
-                Events.error("LicenseService error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
+                Events.error(null, importId, "LicenseService error: " + ExceptionUtils.getRootCauseMessage(e), ExceptionUtils.getStackTrace(e));
             }
         }
         String message = String.format("Import %s: enqueued %d licenses for day %d", importId, count - 1, day);
