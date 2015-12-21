@@ -21,9 +21,7 @@ import java.util.UUID;
  * Simple Usage: curl -X POST http://localhost:8081/tasks/import-users
  */
 public class ImportUsersTask extends Task {
-    private final String usage = "curl " +
-            "--data 'users=path/to/users.json' " +
-            "http://localhost:8081/tasks/import-users";
+    private final String usage = "curl --data 'users=path/to/users.json' http://localhost:8081/tasks/import-users";
 
     public ImportUsersTask() {
         super("import-users");
@@ -43,6 +41,7 @@ public class ImportUsersTask extends Task {
             String usersJson = Resources.toString(Resources.getResource("import/users.json"), Charsets.UTF_8);
             users = JsonSerializer.getArray(usersJson, User.class);
         }
+        // TODO: support user.json file provided on the command line
 
         // import users if they don't already exist
         for (User user : users) {

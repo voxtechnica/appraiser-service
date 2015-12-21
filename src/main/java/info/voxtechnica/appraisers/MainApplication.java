@@ -32,6 +32,7 @@ import info.voxtechnica.appraisers.model.User;
 import info.voxtechnica.appraisers.resource.*;
 import info.voxtechnica.appraisers.service.LicenseService;
 import info.voxtechnica.appraisers.task.ImportLicenseFileTask;
+import info.voxtechnica.appraisers.task.ImportLicensesTask;
 import info.voxtechnica.appraisers.task.ImportUsersTask;
 import info.voxtechnica.appraisers.util.JsonSerializer;
 import info.voxtechnica.appraisers.util.NetworkUtils;
@@ -177,6 +178,7 @@ public class MainApplication extends Application<ApplicationConfiguration> {
         // Initialize administrative Tasks:
         environment.admin().addTask(new ImportUsersTask());
         environment.admin().addTask(new ImportLicenseFileTask());
+        environment.admin().addTask(new ImportLicensesTask(httpClient));
 
         // Initialize database access objects (DAOs):
         startTime = System.currentTimeMillis();
