@@ -45,6 +45,134 @@ Header fields in the downloadable tab-delimited text file:
 
 The combination of three fields (st_abbr, lic_number, and lic_type) creates a unique index to a record in the file.
 
-# Local Development Environment Setup
+# Development Environment Setup
 
-To be continued...
+Unless otherwise indicated, install the most current stable version of the various software packages highlighted below. The details for this vary by operating system. If you are running OS X, then [Homebrew](http://brew.sh)'s `brew install` is as simple as `apt-get install` on Linux. Highly recommended.
+
+**Steps**:
+
+1. Install [git](http://git-scm.com/), set up your [SSH key](https://help.github.com/articles/generating-ssh-keys/), and fork and/or clone this repository
+2. Install [Oracle Java Development Kit (JDK) SE 8](http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+3. Install an IDE (e.g. [Intellij IDEA](https://www.jetbrains.com/idea/), [Eclipse](http://www.eclipse.org/downloads/), or [NetBeans](https://netbeans.org/))
+4. Install [Maven](http://maven.apache.org/download.cgi) (optional; it may be included with your IDE)
+5. Install [Cassandra](http://planetcassandra.org/cassandra/) (optional; it's embedded in the application)
+6. Install a browser-based REST API client (e.g. [Postman](https://www.getpostman.com/))
+7. Build the application using Maven
+8. Run the application using the server command
+9. Bootstrap a new user account
+
+## Build the Application
+
+Build the application using Maven, from the project's root folder:
+
+```
+mvn clean package
+```
+
+## Run the Application
+
+To run the application, you only need the executable jar file and a configuration file. A sample configuration file is provided. Copy this file to the project's root folder and update it as desired. If you enable [SendGrid](https://sendgrid.com/) (email) or [Slack](https://slack.com/) (messaging) support, then you'll need to supply your own account credentials.
+
+```
+cp src/main/resources/config/appraisers-example.yaml ./appraisers.yaml
+```
+
+Execute the following command (substituting the correct version number) to run the application. Note the command 'server' and the yaml configuration file.
+
+```
+java -jar target/appraisers-1.0-SNAPSHOT.jar server appraisers.yaml
+```
+
+By default, the API ([documentation](http://localhost:8080/docs)) is available on port 8080, and administrative functions (e.g. [healthcheck](http://localhost:8081/healthcheck), [metrics](http://localhost:8081/metrics)) are available on port 8081. To stop the service, simply press <Ctrl+C>.
+
+If, as in the example configuration file, you've set the Cassandra host name to 'embedded', the application will run the embedded Cassandara database server. It will create a ./cassandra folder for the configuration and data files in your current directory, and it will be there for you the next time you run the application. If you want to get rid of old test data, simply delete the folder and you can start fresh again. If you've installed your own instance of Cassandra, simply update the host name in the configuration file accordingly. The application will instantiate its schema into the database if it doesn't already exist.
+
+## Bootstrap a New User Account
+
+You can bootstrap a new user account using a three-step process:
+
+1. **Create a Reset Token**: using a tool like Postman, POST empty JSON to a URI that includes your email address. This will create the account if it doesn’t already exist. The application will then send a password reset token to the email address.
+2. **Enter a new Password**: use the token to PUT a new password to a URI that includes both the email address and the token supplied. You can now use your email address and password with Basic Authentication to use the API. Or, if you prefer, you can create a bearer token (step 3).
+3. **Create an OAuth2 Bearer Token**: once you have proper username and password credentials, you can either log in using Basic Authentication or create an OAuth bearer token to access the API.
+
+These steps are detailed below.
+
+### Create a Reset Token
+
+POST empty JSON {} to this URI, substituting your own email address:
+
+```
+POST http://localhost:8080/v1/users/username@example.com/resets
+Content-Type: application/json
+Accept: application/json
+Body:
+{}
+Response: 200 OK
+{ "status": "SENT" }
+```
+
+If the status is NOT_SENT, then that means that either email support (SendGrid) is disabled, or your email address domain name is not included in the list of approved domains. In this case, you can use the admin user's bearer token (found in the configuration file) to get the reset token directly from the database. Substitute your email address in the following example:
+
+```
+GET http://localhost:8080/v1/users/username@example.com
+Accept: application/json
+Authorization: Bearer 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
+Response: 200 OK
+{
+    "id": "2W0NTHMZ6FR7",
+    "updateId": "2W0NUN7KXPVN",
+    "email": "username@example.com",
+    "passwordHash": "1020b9a5af92aaa016578b5b8d83952c290c152c5bc14ee391ed7fcf9ee646ef",
+    "resetToken": "2W0NUN7KXPOJ",
+    "status": "PENDING",
+    "name": "2W0NTHMZ6FR7",
+    "domain": "example.com",
+    "createdAt": "2015-12-21T20:30:45.057-08:00",
+    "updatedAt": "2015-12-21T20:36:30.264-08:00"
+}
+```
+
+The resetToken value (e.g. 2W0NUN7KXPOJ above) is the token that would have been emailed.
+
+### Enter a new Password
+
+Using your email address and the password reset token, create a new password for your account with a PUT to a URI of the form v1/users/{email}/resets/{token}. For example:
+
+```
+PUT http://localhost:8080/v1/users/username@example.com/resets/2W0NUN7KXPOJ
+Content-Type: application/json
+Accept: application/json
+Body:
+{ "password": "myNewPassword" }
+Response: 200 OK
+{ "status": "RESET" }
+```
+
+Now you can use your email address and password to authenticate your API access with a Basic Authorization header.
+
+### Create an OAuth2 Bearer Token
+
+A preferred way of authenticating your access is with an OAuth2 bearer token. You can create such a token by posting your email address and password to v1/tokens like so:
+
+```
+POST http://localhost:8080/v1/tokens
+Content-Type: application/json
+Accept: application/json
+Body:
+{
+    "username":"username@example.com",
+    "password":"mySecretPassword"
+}
+Response: 201 Created
+{
+    "token_type": "bearer",
+    "access_token": "e66edde0-a6be-11e4-879f-0335bca1f646"
+}
+```
+
+You can have more than one bearer token in use for a single user account (e.g. different tokens for different devices). To deliberately deactivate a particular token, you can delete it like so:
+```
+DELETE http://localhost:8080/v1/tokens/e66edde0-a6be-11e4-879f-0335bca1f646
+Authorization: Bearer e66edde0-a6be-11e4-879f-0335bca1f646
+Response: 204 No Content
+```
