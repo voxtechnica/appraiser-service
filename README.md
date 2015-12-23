@@ -176,3 +176,118 @@ DELETE http://localhost:8080/v1/tokens/e66edde0-a6be-11e4-879f-0335bca1f646
 Authorization: Bearer e66edde0-a6be-11e4-879f-0335bca1f646
 Response: 204 No Content
 ```
+
+## Load ASC.gov Data
+
+The application has two importers for loading data from ASC.gov:
+
+1. **ImportLicenseFileTask**: import a specific file downloaded previously; and
+2. **ImportLicensesTask**: download and import data directly from ASC.gov.
+
+The simplest way to get started is to use option 2, ImportLicensesTask. To invoke it, execute the following command:
+
+```
+curl -X POST http://localhost:8081/tasks/import-licenses
+```
+
+This will trigger a download, and the concurrent importers will go to work immediately. You can configure the number of parallel workers in appraisers.yaml (the threadPool section). On a reasonably fast computer, it will take about 1 minute to import more than 300,000 appraiser licenses.
+
+If you put this task in a cron job, you'll get regular updates to your dataset. Only new or modified data are imported. After the initial import, most of the records are ignored. To check on how your regular imports are doing, you can use the following API query. Leave off the 'day' query parameter to get the complete history.
+
+```
+GET http://localhost:8080/v1/imports?day=20151021
+Accept: application/json
+Authorization: Bearer 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
+Response: 200 OK
+[
+    {
+        "id": "2W0FV8515I5D",
+        "day": 20151021,
+        "created": 22,
+        "updated": 361,
+        "ignored": 310119,
+        "total": 310502,
+        "createdAt": "2015-12-20T20:44:30.613-08:00"
+    }
+]
+```
+
+## Browse Appraiser Licenses
+
+Once you've got data in the database, you can query for appraisers like this:
+
+```
+GET http://localhost:8080/v1/licenses?state=AZ&license_number=20043
+Accept: application/json
+Authorization: Bearer 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
+Response: 200 OK
+[
+    {
+        "id": "2VM6ST0LS2E9",
+        "updateId": "2VMUVVRQRME9",
+        "ascKey": "AZ200433",
+        "stateAbbrev": "AZ",
+        "licenseNumber": "20043",
+        "licenseType": "3",
+        "fullName": "MICHAEL F CUMMER ",
+        "lastName": "CUMMER",
+        "firstName": "MICHAEL",
+        "middleName": "F",
+        "nameSuffix": "",
+        "telephone": "602-910-0688",
+        "address": "257 N. 104TH PLACE APACHE JUNCTION AZ 85120",
+        "street": "257 N. 104TH PLACE",
+        "city": "APACHE JUNCTION",
+        "state": "AZ",
+        "zipcode": "85120",
+        "company": "",
+        "county": "MARICOPA",
+        "countyCode": "013",
+        "status": "A",
+        "expirationDate": "2016-08-31",
+        "rawData": {
+            "city": "APACHE JUNCTION",
+            "company": "",
+            "county": "MARICOPA",
+            "county_code": "013",
+            "exp_date": "2016-08-31 00:00:00.000",
+            "fname": "MICHAEL",
+            "lic_number": "20043",
+            "lic_type": "3",
+            "lname": "CUMMER",
+            "mname": "F",
+            "name_suffix": "",
+            "phone": "602-910-0688",
+            "st_abbr": "AZ",
+            "state": "AZ",
+            "status": "A",
+            "street": "257 N. 104TH PLACE",
+            "zip": "85120"
+        },
+        "licenseTypeDisplay": "Certified Residential",
+        "statusDisplay": "Active",
+        "createdAt": "2015-10-18T00:00:05.196-07:00",
+        "updatedAt": "2015-10-21T00:00:05.196-07:00"
+    }
+]
+```
+
+There are a number of different query parameters you can use for finding licenses, and the specifics are included in the detailed [API documentation](https://appraisers.voxtechnica.info/docs#!/licenses/readLicenses_get_4).
+
+Note that the original, unmodified data downloaded from ASC.gov are included in the 'rawData' field. The other attributes in the license record are lightly standardized (e.g. uppercasing text) in the interest of improving data quality and searchability.
+
+To see the complete revision/update history for a particular license, you can use the license ID like the following:
+
+```
+GET http://localhost:8080/v1/licenses/2VM6ST0LS2E9/versions
+Accept: application/json
+Authorization: Bearer 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
+Response: 200 OK
+[
+    {
+    ... omitted for brevity ...
+    }
+]
+```
+
+You'll get an array of license records, all of which are chronological updates to the same license.
