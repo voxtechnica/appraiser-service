@@ -1,5 +1,6 @@
 package info.voxtechnica.appraisers.model;
 
+import info.voxtechnica.appraisers.util.LicenseStandardizer;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -16,6 +17,7 @@ import java.util.Map;
  */
 @Data
 public class License implements Comparable<License> {
+
     /**
      * id is the unique identifier of the License in the Appraiser Service. It's a TUID, and it never changes.
      */
@@ -50,8 +52,8 @@ public class License implements Comparable<License> {
     /**
      * licenseNumber is a State-specific (or County-specific?) identifier for the appraiser certification or license.
      * Consequently, the license number patterns are diverse and they are not unique. These data points should be high
-     * quality. There are no blanks, but it needs to be upper-cased. It appears that some may be missing hyphens to
-     * match the pattern of other very similar license numbers (e.g. X30000001 and X3-0000316).
+     * quality. There are no blanks, but it needs to be upper-cased. It appears that some may be missing hyphens or
+     * periods to match the pattern of other very similar license numbers (e.g. X30000001 and X3-0000316).
      */
     private String licenseNumber;
 
@@ -115,13 +117,23 @@ public class License implements Comparable<License> {
 
     /**
      * telephone is the telephone number of the appraiser. There are 171,744 blanks, and a few records with odd
-     * binary data (^B and ^D), '@', and '~'. Some appear to be international (e.g. '011-420-732-227417'). Some are just
-     * hypens, underscores, and/or zeros. Some have what may be fragments of street addresses. The data should be
-     * stripped of characters that are non-numeric or '-'. Stripped characters should be replaced with spaces, and then
-     * the remaining numeric segments should be trimmed and hyphen-delimited for standardization. Telephone numbers may
-     * be useful for identifying unique appraisers and/or their companies.
+     * binary data (^B and ^D), '@', and '~'. Some appear to be international (e.g. '011-420-732-227417'). Some have
+     * extensions (e.g. '312-630-9400 x 316'). Some are just hypens, underscores, and/or zeros. Some have what may be
+     * fragments of street addresses. The data should be stripped of characters that are non-numeric or '-'. Stripped
+     * characters should be replaced with spaces, and then the remaining numeric segments should be trimmed and hyphen
+     * delimited for standardization. Telephone numbers may be useful for identifying unique appraisers and/or their
+     * companies. Google's <a src="https://github.com/googlei18n/libphonenumber">phone number parser</a> may be useful.
      */
     private String telephone;
+
+    /**
+     * company is the appraiser's company name. Most records are blank (233,231). There are a few large companies
+     * (banks), but most are quite small. There are a lot of street addresses, and a few web URLs and email addresses.
+     * In some cases, the field is used for notes, such as when a license was suspended and the case number. It needs to
+     * be upper-cased, trimmed, and stripped of extraneous characters, such as quotes, '%', '*', and just periods or
+     * hypens or '='.
+     */
+    private String company;
 
     /**
      * address is a standardized representation of the postal address of the appraiser (or their company?). The following
@@ -160,15 +172,6 @@ public class License implements Comparable<License> {
      * codes.
      */
     private String zipcode;
-
-    /**
-     * company is the appraiser's company name. Most records are blank (233,231). There are a few large companies
-     * (banks), but most are quite small. There are a lot of street addresses, and a few web URLs and email addresses.
-     * In some cases, the field is used for notes, such as when a license was suspended and the case number. It needs to
-     * be upper-cased, trimmed, and stripped of extraneous characters, such as quotes, '%', '*', and just periods or
-     * hypens or '='.
-     */
-    private String company;
 
     /**
      * county is the County name for the appraiser license. Data quality appears to be good (all upper-case names), but
@@ -229,33 +232,32 @@ public class License implements Comparable<License> {
      */
     public License(Map<String, String> rawData) {
         this.rawData = rawData;
-        // TODO: carefully standardize the data
-        stateAbbrev = rawData.containsKey("st_abbr") ? rawData.get("st_abbr").trim().toUpperCase() : "";
-        licenseNumber = rawData.containsKey("lic_number") ? rawData.get("lic_number").trim().toUpperCase() : "";
-        licenseType = rawData.containsKey("lic_type") ? rawData.get("lic_type").trim() : "";
+
+        stateAbbrev = LicenseStandardizer.stateAbbrev(rawData.get("st_abbr"));
+        licenseNumber = LicenseStandardizer.licenseNumber(rawData.get("lic_number"));
+        licenseType = LicenseStandardizer.licenseType(rawData.get("lic_type"));
         ascKey = stateAbbrev + licenseNumber + licenseType;
 
-        lastName = rawData.containsKey("lname") ? rawData.get("lname").trim().toUpperCase() : "";
-        firstName = rawData.containsKey("fname") ? rawData.get("fname").trim().toUpperCase() : "";
-        middleName = rawData.containsKey("mname") ? rawData.get("mname").trim().toUpperCase() : "";
-        nameSuffix = rawData.containsKey("name_suffix") ? rawData.get("name_suffix").trim().toUpperCase() : "";
-        fullName = String.join(" ", firstName, middleName, lastName, nameSuffix);
+        nameSuffix = LicenseStandardizer.nameSuffix(rawData.get("name_suffix"));
+        lastName = LicenseStandardizer.lastName(rawData.get("lname"));
+        firstName = LicenseStandardizer.firstName(rawData.get("fname"));
+        middleName = LicenseStandardizer.middleName(rawData.get("mname"));
+        fullName = LicenseStandardizer.fullName(firstName, middleName, lastName, nameSuffix);
 
-        company = rawData.containsKey("company") ? rawData.get("company").trim().toUpperCase() : "";
-        telephone = rawData.containsKey("phone") ? rawData.get("phone").trim() : "";
+        telephone = LicenseStandardizer.telephone(rawData.get("phone"));
+        company = LicenseStandardizer.company(rawData.get("company"));
 
-        street = rawData.containsKey("street") ? rawData.get("street").trim().toUpperCase() : "";
-        city = rawData.containsKey("city") ? rawData.get("city").trim().toUpperCase() : "";
-        state = rawData.containsKey("state") ? rawData.get("state").trim().toUpperCase() : "";
-        zipcode = rawData.containsKey("zip") ? rawData.get("zip").trim().toUpperCase() : "";
-        address = String.join(" ", street, city, state, zipcode);
+        street = LicenseStandardizer.street(rawData.get("street"));
+        city = LicenseStandardizer.city(rawData.get("city"));
+        state = LicenseStandardizer.state(rawData.get("state"));
+        zipcode = LicenseStandardizer.zipcode(rawData.get("zip"));
+        address = LicenseStandardizer.address(street, city, state, zipcode);
 
-        county = rawData.containsKey("county") ? rawData.get("county").trim().toUpperCase() : "";
-        countyCode = rawData.containsKey("county_code") ? rawData.get("county_code").trim().toUpperCase() : "";
+        county = LicenseStandardizer.county(rawData.get("county"));
+        countyCode = LicenseStandardizer.countyCode(rawData.get("county_code"));
 
-        status = rawData.containsKey("status") ? rawData.get("status").trim().toUpperCase() : "";
-        expirationDate = rawData.containsKey("exp_date") ? rawData.get("exp_date").trim() : "";
-        expirationDate = expirationDate.length() > 10 ? expirationDate.substring(0, 10) : expirationDate;
+        status = LicenseStandardizer.status(rawData.get("status"));
+        expirationDate = LicenseStandardizer.expirationDate(rawData.get("exp_date"));
     }
 
     @Override

@@ -13,7 +13,7 @@ The United States Federal government provides an online, reasonably current (it 
 
 ## Objectives
 
-* Build a well-designed, modern RESTful web service that solves the above problems. It will track changes in individual appraiser license status by identifying differences in daily data dumps from the asc.gov web site.
+* Build a well-designed, modern RESTful web service that solves the above problems. It will track changes in individual appraiser license status by identifying differences in regular/daily data snapshots from the asc.gov web site.
 * Open-source the project on GitHub as a demonstration of an excellent web-scale technology stack, including Apache Cassandra and Dropwizard.
 
 ## Source Data
@@ -60,6 +60,8 @@ Unless otherwise indicated, install the most current stable version of the vario
 7. Build the application using Maven
 8. Run the application using the server command
 9. Bootstrap a new user account
+10. Load ASC.gov data
+11. Browse appraiser licenses
 
 ## Build the Application
 
