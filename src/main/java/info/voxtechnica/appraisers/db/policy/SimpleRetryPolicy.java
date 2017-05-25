@@ -4,6 +4,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.WriteType;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datastax.driver.core.policies.RetryPolicy;
 
 public class SimpleRetryPolicy implements RetryPolicy {
@@ -43,7 +44,12 @@ public class SimpleRetryPolicy implements RetryPolicy {
     @Override
     public RetryDecision onUnavailable(final Statement query, final ConsistencyLevel cl, final int requiredReplica,
                                        final int aliveReplica, final int nbRetry) {
-        return RetryDecision.rethrow();
+        return (nbRetry == 0) ? RetryDecision.tryNextHost(null) : RetryDecision.rethrow();
+    }
+
+    @Override
+    public RetryDecision onRequestError(Statement query, ConsistencyLevel cl, DriverException e, int nbRetry) {
+        return RetryDecision.tryNextHost(cl);
     }
 
     public int getReadRetries() {

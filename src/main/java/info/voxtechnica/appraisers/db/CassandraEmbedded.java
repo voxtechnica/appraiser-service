@@ -57,6 +57,7 @@ public class CassandraEmbedded {
             System.setProperty("cassandra-foreground", "true");
 
             // create subdirectories needed for Cassandra:
+            // TODO: cassandra-all 3.10 fails here with a NullPointerException (no directory configs)
             DatabaseDescriptor.createAllDirectories();
 
             // configure Java management extensions (JMX):
@@ -80,8 +81,8 @@ public class CassandraEmbedded {
                 throw new AssertionError(e);
             }
 
-        } else if (!daemon.nativeServer.isRunning()) {
-            daemon.nativeServer.start();
+        } else if (!daemon.isNativeTransportRunning()) {
+            daemon.start();
         }
     }
 
@@ -89,7 +90,7 @@ public class CassandraEmbedded {
      * Stop the embedded Cassandra server.
      */
     public static void stop() {
-        daemon.nativeServer.stop();
+        daemon.stop();
     }
 
     /**
@@ -98,7 +99,7 @@ public class CassandraEmbedded {
      * @return whether the embedded Cassandra native CQL server is running
      */
     public static boolean isRunning() {
-        return (daemon != null && daemon.nativeServer.isRunning());
+        return (daemon != null && daemon.isNativeTransportRunning());
     }
 
 }

@@ -43,7 +43,7 @@ realm:
     passwordHash: ccbc9938a937ab374f08427213e937f06fa01505c1d42d1e5ec8fead29eaf964
     oauthToken: 163c88b0-8c01-11e5-bb53-dd09e7fbdd1b
     roles:
-    - admin
+      - admin
     status: ENABLED
 
   # Guava CacheBuilderSpec for user authentication caching:
@@ -86,10 +86,10 @@ sendgrid:
   from: admin@voxtechnica.info
   fromName: VoxTechnica
   recipientsBcc:
-  - admin@voxtechnica.info
+    - admin@voxtechnica.info
   recipientDomains:
-  - voxtechnica.info
-  - gmail.com
+    - voxtechnica.info
+    - gmail.com
   enabled: true
 
 # Slack Message Configuration
@@ -100,7 +100,7 @@ slack:
   webhookUri: https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX
   channel: "#dev"
   notifyOnError:
-  - "@admin"
+    - "@admin"
   enabled: true
 
 # Worker Thread Pool Configuration
@@ -124,14 +124,13 @@ server:
     - type: http
       port: 8081
   requestLog:
-    timeZone: UTC
     appenders:
-    - type: file
-      currentLogFilename: log/access.log
-      threshold: ALL
-      archive: true
-      archivedLogFilenamePattern: log/access.%d.log.gz
-      archivedFileCount: 14
+      - type: file
+        currentLogFilename: log/access.log
+        archivedLogFilenamePattern: log/access.%d.log.gz
+        archivedFileCount: 7
+        timeZone: UTC
+      - type: console
 
 # Event Logging
 logging:
@@ -141,11 +140,10 @@ logging:
     org.apache.cassandra: WARN
     org.apache.cassandra.cql3.statements.BatchStatement: WARN
   appenders:
-  - type: file
-    currentLogFilename: log/appraiser-service.log
-    threshold: ALL
-    archive: true
-    archivedLogFilenamePattern: log/appraiser-service.%d.log.gz
-    archivedFileCount: 14
-    timeZone: UTC
-  - type: console
+    - type: file
+      currentLogFilename: log/appraiser-service.log
+      archive: true
+      archivedLogFilenamePattern: log/appraiser-service.%d.log.gz
+      archivedFileCount: 7
+      timeZone: UTC
+    - type: console

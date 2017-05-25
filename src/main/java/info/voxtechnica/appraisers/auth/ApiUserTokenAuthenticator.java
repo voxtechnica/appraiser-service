@@ -1,6 +1,5 @@
 package info.voxtechnica.appraisers.auth;
 
-import com.google.common.base.Optional;
 import info.voxtechnica.appraisers.config.ApplicationConfiguration;
 import info.voxtechnica.appraisers.db.dao.Tokens;
 import info.voxtechnica.appraisers.db.dao.Users;
@@ -12,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -38,7 +38,7 @@ public class ApiUserTokenAuthenticator implements Authenticator<String, User> {
         // check credentials for users in the database:
         try {
             Token oAuthToken = Tokens.readOAuthToken(UUID.fromString(token));
-            if (oAuthToken == null || oAuthToken.isExpired()) return Optional.absent();
+            if (oAuthToken == null || oAuthToken.isExpired()) return Optional.empty();
             User user = Users.readUser(oAuthToken.getUserId());
             if (user != null && user.isActiveUser()) {
                 Tokens.updateUserToken(oAuthToken.getUserId(), oAuthToken.getOAuthToken());
@@ -50,6 +50,6 @@ public class ApiUserTokenAuthenticator implements Authenticator<String, User> {
             throw new AuthenticationException(e);
         }
         LOG.debug("Authentication Failure: OAuth Token {} not found", token);
-        return Optional.absent();
+        return Optional.empty();
     }
 }

@@ -1,6 +1,5 @@
 package info.voxtechnica.appraisers.auth;
 
-import com.google.common.base.Optional;
 import info.voxtechnica.appraisers.config.ApplicationConfiguration;
 import info.voxtechnica.appraisers.db.dao.Users;
 import info.voxtechnica.appraisers.model.User;
@@ -11,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 /**
  * The ApiUserBasicAuthenticator authenticates user identity with Basic Authentication, returning a valid User on success.
@@ -46,6 +46,6 @@ public class ApiUserBasicAuthenticator implements Authenticator<BasicCredentials
             throw new AuthenticationException(e);
         }
         LOG.debug("Authentication Failure: {} not found", credentials.getUsername());
-        return Optional.absent();
+        return Optional.empty();
     }
 }
