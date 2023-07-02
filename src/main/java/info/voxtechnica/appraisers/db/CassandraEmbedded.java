@@ -57,7 +57,7 @@ public class CassandraEmbedded {
             System.setProperty("cassandra-foreground", "true");
 
             // create subdirectories needed for Cassandra:
-            // TODO: cassandra-all 3.10 fails here with a NullPointerException (no directory configs)
+            // TODO: cassandra-all 3.11.15 fails here with a NullPointerException (no directory configs)
             DatabaseDescriptor.createAllDirectories();
 
             // configure Java management extensions (JMX):

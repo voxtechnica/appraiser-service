@@ -6,10 +6,12 @@
 *.deb
 target/
 dependency-reduced-pom.xml
+dependencies.log
 
 # Individual Developer Files
 *.iml
 .idea/
+.vscode/
 nbactions.xml
 
 # Run Files
